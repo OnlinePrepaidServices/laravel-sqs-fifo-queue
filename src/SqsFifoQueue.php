@@ -160,7 +160,7 @@ class SqsFifoQueue extends SqsQueue
 
         // Modify the queue name as needed and re-add the ".fifo" suffix.
         return (filter_var($queue, FILTER_VALIDATE_URL) === false
-            ? rtrim($this->prefix, '/').'/'.Str::finish($queue, $this->suffix)
+            ? rtrim($this->prefix, '/').'/'.Str::finish($queue ?: '', $this->suffix)
             : $queue).'.fifo';
     }
 
