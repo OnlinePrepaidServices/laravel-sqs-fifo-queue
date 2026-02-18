@@ -199,8 +199,9 @@ class SqsFifoQueue extends SqsQueue
      * Create a payload string from the given job and data.
      *
      * @param  mixed  $job
-     * @param  mixed  $data
      * @param  string|null  $queue
+     * @param  mixed  $data
+     * @param  \DateTimeInterface|\DateInterval|int|null  $delay
      *
      * @return string
      *
@@ -208,9 +209,9 @@ class SqsFifoQueue extends SqsQueue
      * @throws \InvalidArgumentException
      * @throws \Illuminate\Queue\InvalidPayloadException
      */
-    protected function createPayload($job, $data = '', $queue = null)
+    protected function createPayload($job, $queue, $data = '', $delay = null)
     {
-        $payload = parent::createPayload($job, $data, $queue);
+        $payload = parent::createPayload($job, $queue, $data, $delay);
 
         if (!is_object($job)) {
             return $payload;
@@ -227,7 +228,7 @@ class SqsFifoQueue extends SqsQueue
         // We must regenerate the payload using just the class name, instead
         // of the job instance, so the queue worker can handle the job.
         if (!class_exists(CallQueuedHandler::class)) {
-            $payload = parent::createPayload(get_class($job), $data, $queue);
+            $payload = parent::createPayload(get_class($job), $queue, $data, $delay);
         }
 
         // Laravel <= 5.3 has the `setMeta` method. This is the method
@@ -269,15 +270,15 @@ class SqsFifoQueue extends SqsQueue
      * Create a payload array from the given job and data.
      *
      * @param  mixed  $job
-     * @param  mixed  $data
      * @param  string|null  $queue
+     * @param  mixed  $data
      *
      * @return array
      */
-    protected function createPayloadArray($job, $data = '', $queue = null)
+    protected function createPayloadArray($job, $queue, $data = '')
     {
         return array_merge(
-            parent::createPayloadArray($job, $data, $queue),
+            parent::createPayloadArray($job, $queue, $data),
             $this->getMetaPayload($job)
         );
     }
